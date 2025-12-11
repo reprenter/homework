@@ -25,6 +25,12 @@ public:
     void borrowBook(const std::string& userName);
     void returnBook();
     void displayInfo() const;
+    void setTitle(const std::string& title);
+    void setAuthor(const std::string& author);
+    void setYear(int year);
+    void setISBN(const std::string& isbn);
+    void setAvailable(bool available);
+    void setBorrowedBy(const std::string& name);
 };
 
 #endif

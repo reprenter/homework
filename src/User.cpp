@@ -51,3 +51,18 @@ void User::displayProfile() const {
         std::cout << std::endl;
     }
 }
+
+void User::setName(const std::string& name) {
+    this->name = name;
+}
+
+void User::setUserId(const std::string& userId) {
+    this->userId = userId;
+}
+
+void User::setMaxBooks(int maxBooks) {
+    if (maxBooks < 1) {
+        throw std::invalid_argument("Maximum books must be at least 1");
+    }
+    this->maxBooksAllowed = maxBooks;
+}

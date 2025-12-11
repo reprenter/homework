@@ -23,6 +23,9 @@ public:
     void addBook(const std::string& isbn);
     void removeBook(const std::string& isbn);
     void displayProfile() const;
+    void setName(const std::string& name);
+    void setUserId(const std::string& userId);
+    void setMaxBooks(int maxBooks);
 };
 
 #endif

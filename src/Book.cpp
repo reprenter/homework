@@ -60,3 +60,38 @@ void Book::displayInfo() const {
     std::cout << "ISBN: " << isbn << std::endl;
     std::cout << "Status: " << (isAvailable ? "Available" : "Borrowed by " + borrowedBy) << std::endl;
 }
+
+void Book::setTitle(const std::string& title) {
+    this->title = title;
+}
+
+void Book::setAuthor(const std::string& author) {
+    this->author = author;
+}
+
+void Book::setYear(int year) {
+    time_t now = time(0);
+    tm* current_time = localtime(&now);
+    int current_year = current_time->tm_year + 1900;
+    
+    if (year < 1450 || year > current_year) {
+        throw std::invalid_argument("Invalid publication year");
+    }
+    this->year = year;
+}
+
+void Book::setISBN(const std::string& isbn) {
+    if (isbn.empty()) {
+        throw std::invalid_argument("ISBN cannot be empty");
+    }
+    this->isbn = isbn;
+}
+
+void Book::setAvailable(bool available) {
+    this->isAvailable = available;
+}
+
+void Book::setBorrowedBy(const std::string& name) {
+    this->borrowedBy = name;
+    this->isAvailable = name.empty();
+}
