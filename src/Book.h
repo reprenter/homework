@@ -2,6 +2,7 @@
 #define BOOK_H
 
 #include <string>
+#include <iostream>
 
 class Book {
 private:
@@ -21,6 +22,9 @@ public:
     std::string getISBN() const;
     bool isBookAvailable() const;
     std::string getBorrowedBy() const;
+    void borrowBook(const std::string& userName);
+    void returnBook();
+    void displayInfo() const;
 };
 
 #endif

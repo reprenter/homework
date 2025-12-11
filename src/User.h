@@ -1,6 +1,7 @@
 #ifndef USER_H
 #define USER_H
 
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -18,6 +19,10 @@ public:
     std::string getUserId() const;
     const std::vector<std::string>& getBorrowedBooks() const;
     int getMaxBooksAllowed() const;
+    bool canBorrowMore() const;
+    void addBook(const std::string& isbn);
+    void removeBook(const std::string& isbn);
+    void displayProfile() const;
 };
 
 #endif

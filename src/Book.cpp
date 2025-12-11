@@ -36,3 +36,27 @@ bool Book::isBookAvailable() const {
 std::string Book::getBorrowedBy() const {
     return borrowedBy;
 }
+
+void Book::borrowBook(const std::string& userName) {
+    if (!isAvailable) {
+        throw std::runtime_error("Book is already borrowed");
+    }
+    isAvailable = false;
+    borrowedBy = userName;
+}
+
+void Book::returnBook() {
+    if (isAvailable) {
+        throw std::runtime_error("Book is already available");
+    }
+    isAvailable = true;
+    borrowedBy.clear();
+}
+
+void Book::displayInfo() const {
+    std::cout << "Title: " << title << std::endl;
+    std::cout << "Author: " << author << std::endl;
+    std::cout << "Year: " << year << std::endl;
+    std::cout << "ISBN: " << isbn << std::endl;
+    std::cout << "Status: " << (isAvailable ? "Available" : "Borrowed by " + borrowedBy) << std::endl;
+}
