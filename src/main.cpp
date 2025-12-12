@@ -48,7 +48,7 @@ std::string getStringInput(const std::string& prompt) {
 
 int main() {
     try {
-        Library library("data/library_data.txt");
+        Library library("../data/library_data.txt");
         std::cout << "Данные успешно загружены из файла!\n";
         
         int choice;
