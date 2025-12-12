@@ -201,3 +201,45 @@ void Library::loadFromFile() {
 
     file.close();
 }
+
+void Library::borrowBook(const std::string& userName, const std::string& isbn) {
+    User* user = findUserByName(userName);
+    if (!user) {
+        throw std::runtime_error("User not found: " + userName);
+    }
+    
+    if (!user->canBorrowMore()) {
+        throw std::runtime_error("User has reached maximum book limit");
+    }
+    
+    Book* book = findBookByISBN(isbn);
+    if (!book) {
+        throw std::runtime_error("Book not found with ISBN: " + isbn);
+    }
+    
+    if (!book->isBookAvailable()) {
+        throw std::runtime_error("Book is already borrowed by " + book->getBorrowedBy());
+    }
+    
+    book->borrowBook(userName);
+    user->addBook(isbn);
+}
+
+void Library::returnBook(const std::string& isbn) {
+    Book* book = findBookByISBN(isbn);
+    if (!book) {
+        throw std::runtime_error("Book not found with ISBN: " + isbn);
+    }
+    
+    if (book->isBookAvailable()) {
+        throw std::runtime_error("Book is already available in library");
+    }
+    
+    User* user = findUserByName(book->getBorrowedBy());
+    if (!user) {
+        throw std::runtime_error("Original borrower not found");
+    }
+    
+    book->returnBook();
+    user->removeBook(isbn);
+}

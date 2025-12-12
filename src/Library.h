@@ -23,6 +23,8 @@ public:
     void displayAllUsers() const;
     void saveToFile() const;
     void loadFromFile();
+    void borrowBook(const std::string& userName, const std::string& isbn);
+    void returnBook(const std::string& isbn);
 };
 
 #endif
