@@ -100,8 +100,7 @@ void Library::saveToFile() const {
 
 void Library::loadFromFile() {
     std::ifstream file(dataFile);
-    if (!file.is_open()) {
-        // Создаем пустой файл с заготовкой
+    if (!file.is_open()) { // Создаем пустой файл с заготовкой
         std::ofstream newFile(dataFile);
         if (newFile.is_open()) {
             newFile << "---USERS---\n";
@@ -123,14 +122,12 @@ void Library::loadFromFile() {
             continue;
         }
 
-        if (line.find("BOOK") == 0 && !inUsersSection) {
-            // Начало новой книги
+        if (line.find("BOOK") == 0 && !inUsersSection) { // Начало новой книги
             currentBook = new Book("", "", 0, "");
             continue;
         }
 
-        if (line.find("USER") == 0 && inUsersSection) {
-            // Начало нового пользователя
+        if (line.find("USER") == 0 && inUsersSection) { // Начало нового пользователя
             currentUser = new User("", "");
             continue;
         }
@@ -145,7 +142,7 @@ void Library::loadFromFile() {
                 try {
                     currentBook->setYear(std::stoi(line.substr(6)));
                 } catch (...) {
-                    currentBook->setYear(2000); // Значение по умолчанию
+                    currentBook->setYear(2000);
                 }
             } else if (line.find("ISBN: ") == 0) {
                 currentBook->setISBN(line.substr(6));
@@ -153,14 +150,12 @@ void Library::loadFromFile() {
                 currentBook->setAvailable(line.substr(11) == "yes");
             } else if (line.find("BorrowedBy: ") == 0) {
                 currentBook->setBorrowedBy(line.substr(12));
-            } else if (line == "" && !line.empty()) {
-                // Пустая строка означает конец данных книги
+            } else if (line == "" && !line.empty()) { // Пустая строка означает конец данных книги
                 books.push_back(*currentBook);
                 delete currentBook;
                 currentBook = nullptr;
             }
-        } else if (inUsersSection && currentUser) {
-            // Парсинг данных пользователя
+        } else if (inUsersSection && currentUser) { // Парсинг данных пользователя
             if (line.find("Name: ") == 0) {
                 currentUser->setName(line.substr(6));
             } else if (line.find("UserID: ") == 0) {
@@ -178,10 +173,9 @@ void Library::loadFromFile() {
                 try {
                     currentUser->setMaxBooks(std::stoi(line.substr(10)));
                 } catch (...) {
-                    currentUser->setMaxBooks(3); // Значение по умолчанию
+                    currentUser->setMaxBooks(3);
                 }
-            } else if (line == "" && !line.empty()) {
-                // Пустая строка означает конец данных пользователя
+            } else if (line == "" && !line.empty()) { // Пустая строка означает конец данных пользователя
                 users.push_back(*currentUser);
                 delete currentUser;
                 currentUser = nullptr;
