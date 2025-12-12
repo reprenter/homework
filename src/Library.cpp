@@ -132,8 +132,7 @@ void Library::loadFromFile() {
             continue;
         }
 
-        if (!inUsersSection && currentBook) {
-            // Парсинг данных книги
+        if (!inUsersSection && currentBook) { // Парсинг данных книги
             if (line.find("Title: ") == 0) {
                 currentBook->setTitle(line.substr(7));
             } else if (line.find("Author: ") == 0) {
