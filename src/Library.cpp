@@ -3,17 +3,11 @@
 #include <iostream>
 #include <sstream>
 
-Library::Library(const std::string& dataFile) : dataFile(dataFile) {
-    loadFromFile();
-}
+Library::Library(const std::string& dataFile) : dataFile(dataFile) { loadFromFile(); }
 
-void Library::addBook(const Book& book) {
-    books.push_back(book);
-}
+void Library::addBook(const Book& book) { books.push_back(book); }
 
-void Library::addUser(const User& user) {
-    users.push_back(user);
-}
+void Library::addUser(const User& user) { users.push_back(user); }
 
 Book* Library::findBookByISBN(const std::string& isbn) {
     for (Book& book : books) {
@@ -100,7 +94,8 @@ void Library::saveToFile() const {
 
 void Library::loadFromFile() {
     std::ifstream file(dataFile);
-    if (!file.is_open()) { // Создаем пустой файл с заготовкой
+    if (!file.is_open()) {
+        // Создаем пустой файл с заготовкой
         std::ofstream newFile(dataFile);
         if (newFile.is_open()) {
             newFile << "---USERS---\n";
@@ -111,8 +106,8 @@ void Library::loadFromFile() {
 
     std::string line;
     bool inUsersSection = false;
-    Book* currentBook = nullptr;
-    User* currentUser = nullptr;
+    books.clear();
+    users.clear();
 
     while (getline(file, line)) {
         if (line.empty()) continue;
@@ -122,74 +117,76 @@ void Library::loadFromFile() {
             continue;
         }
 
-        if (line.find("BOOK") == 0 && !inUsersSection) { // Начало новой книги
-            currentBook = new Book("", "", 0, "");
-            continue;
-        }
+        if (!inUsersSection && line.find("BOOK") != std::string::npos) {
+            std::string title, author, isbn, borrowedBy;
+            int year = 0;
+            bool available = true;
 
-        if (line.find("USER") == 0 && inUsersSection) { // Начало нового пользователя
-            currentUser = new User("", "");
-            continue;
-        }
-
-        if (!inUsersSection && currentBook) { // Парсинг данных книги
-            if (line.find("Title: ") == 0) {
-                currentBook->setTitle(line.substr(7));
-            } else if (line.find("Author: ") == 0) {
-                currentBook->setAuthor(line.substr(8));
-            } else if (line.find("Year: ") == 0) {
-                try {
-                    currentBook->setYear(std::stoi(line.substr(6)));
-                } catch (...) {
-                    currentBook->setYear(2000);
+            while (getline(file, line) && !line.empty()) {
+                if (line.find("Title: ") == 0) {
+                    title = line.substr(7);
+                } else if (line.find("Author: ") == 0) {
+                    author = line.substr(8);
+                } else if (line.find("Year: ") == 0) {
+                    try {
+                        year = std::stoi(line.substr(6));
+                    } catch (...) {
+                        year = 2000; 
+                    }
+                } else if (line.find("ISBN: ") == 0) {
+                    isbn = line.substr(6);
+                } else if (line.find("Available: ") == 0) {
+                    available = (line.substr(11) == "yes");
+                } else if (line.find("BorrowedBy: ") == 0) {
+                    borrowedBy = line.substr(12);
                 }
-            } else if (line.find("ISBN: ") == 0) {
-                currentBook->setISBN(line.substr(6));
-            } else if (line.find("Available: ") == 0) {
-                currentBook->setAvailable(line.substr(11) == "yes");
-            } else if (line.find("BorrowedBy: ") == 0) {
-                currentBook->setBorrowedBy(line.substr(12));
-            } else if (line == "" && !line.empty()) { // Пустая строка означает конец данных книги
-                books.push_back(*currentBook);
-                delete currentBook;
-                currentBook = nullptr;
             }
-        } else if (inUsersSection && currentUser) { // Парсинг данных пользователя
-            if (line.find("Name: ") == 0) {
-                currentUser->setName(line.substr(6));
-            } else if (line.find("UserID: ") == 0) {
-                currentUser->setUserId(line.substr(8));
-            } else if (line.find("BorrowedBooks: ") == 0) {
-                std::string booksStr = line.substr(15);
-                if (!booksStr.empty()) {
-                    std::stringstream ss(booksStr);
-                    std::string isbn;
-                    while (getline(ss, isbn, '|')) {
-                        currentUser->addBook(isbn);
+
+            try {
+                if (!title.empty() && !author.empty() && !isbn.empty()) {
+                    Book book(title, author, year, isbn);
+                    if (!available && !borrowedBy.empty()) {
+                        book.borrowBook(borrowedBy);
+                    }
+                    books.push_back(book);
+                }
+            } catch (const std::exception& e) {
+                std::cerr << "Ошибка при загрузке книги '" << title << "': " << e.what() << std::endl;
+            }
+        } else if (inUsersSection && line.find("USER") != std::string::npos) {
+            std::string name, userId, borrowedBooksStr;
+            int maxBooks = 3;
+
+            while (getline(file, line) && !line.empty()) {
+                if (line.find("Name: ") == 0) {
+                    name = line.substr(6);
+                } else if (line.find("UserID: ") == 0) {
+                    userId = line.substr(8);
+                } else if (line.find("BorrowedBooks: ") == 0) {
+                    borrowedBooksStr = line.substr(15);
+                } else if (line.find("MaxBooks: ") == 0) {
+                    try {
+                        maxBooks = std::stoi(line.substr(10));
+                    } catch (...) {
+                        maxBooks = 3;
                     }
                 }
-            } else if (line.find("MaxBooks: ") == 0) {
-                try {
-                    currentUser->setMaxBooks(std::stoi(line.substr(10)));
-                } catch (...) {
-                    currentUser->setMaxBooks(3);
+            }
+
+            if (!name.empty() && !userId.empty()) {
+                User user(name, userId);
+                if (!borrowedBooksStr.empty()) {
+                    std::stringstream ss(borrowedBooksStr);
+                    std::string isbn;
+                    while (getline(ss, isbn, '|')) {
+                        if (!isbn.empty()) {
+                            user.addBook(isbn);
+                        }
+                    }
                 }
-            } else if (line == "" && !line.empty()) { // Пустая строка означает конец данных пользователя
-                users.push_back(*currentUser);
-                delete currentUser;
-                currentUser = nullptr;
+                users.push_back(user);
             }
         }
-    }
-
-    // Добавление последних объектов, если файл не заканчивается пустой строкой
-    if (currentBook) {
-        books.push_back(*currentBook);
-        delete currentBook;
-    }
-    if (currentUser) {
-        users.push_back(*currentUser);
-        delete currentUser;
     }
 
     file.close();
